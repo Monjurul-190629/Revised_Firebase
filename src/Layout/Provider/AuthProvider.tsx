@@ -26,31 +26,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setLoading(true);
             if (firebaseUser) {
                 console.log("User logged in:", firebaseUser);
-
+    
                 try {
                     const docRef = doc(db, "Users", firebaseUser.uid);
                     const docSnap = await getDoc(docRef);
-
+    
                     if (docSnap.exists()) {
-                        console.log("User data found:", docSnap.data());
-                        setUser(firebaseUser); // ✅ Store user data correctly
+                        const userData = docSnap.data();
+                        console.log("User data from Firestore:", userData);
+    
+                        // ✅ Merge Firebase Auth user and Firestore data
+                        setUser({
+                            ...firebaseUser, // Keep original Firebase auth user
+                            ...userData, // Merge Firestore fields (role, displayName, photoURL)
+                        } as User);
                     } else {
                         console.log("No user document found!");
                         setUser(null);
                     }
                 } catch (error) {
                     console.error("Error fetching user data:", error);
+                    setUser(null);
                 }
             } else {
                 console.log("User logged out.");
                 setUser(null);
             }
-
+    
             setLoading(false);
         });
-
-        return unsubscribe; // ✅ Proper cleanup
+    
+        return unsubscribe;
     }, []);
+    
 
     return (
         <AuthContext.Provider value={{ user, signIn, loading }}>

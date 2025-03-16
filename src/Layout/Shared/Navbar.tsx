@@ -6,7 +6,9 @@ const Navbar: React.FC = () => {
 
   
   const {user} = useAuth();
-  console.log(user.photoURL)
+  console.log(user?.role)
+  console.log(user?.displayName)
+  console.log(user?.photoURL)
 
 
 

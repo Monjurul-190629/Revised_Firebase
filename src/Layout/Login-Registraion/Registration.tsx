@@ -24,6 +24,26 @@ const Registration: React.FC = () => {
             const result: UserCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = result.user;
 
+            /// rules to firestore
+            /* 
+            
+            rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow authenticated users to read/write their own data
+    match /Users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+
+            
+            
+            
+            */
+
             if (user) {
                 // Store user data in Firestore
                 await setDoc(doc(db, 'Users', user.uid), {

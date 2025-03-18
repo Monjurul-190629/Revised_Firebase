@@ -1,6 +1,6 @@
 import React from 'react';
-import { createUserWithEmailAndPassword, UserCredential } from 'firebase/auth';
-import auth, { db } from '../Firebase/Firebase';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, UserCredential } from 'firebase/auth';
+import auth, { db, provider } from '../Firebase/Firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 const Registration: React.FC = () => {
@@ -29,7 +29,7 @@ const Registration: React.FC = () => {
             
             rules_version = '2';
 
-service cloud.firestore {
+ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Allow authenticated users to read/write their own data
@@ -60,6 +60,30 @@ service cloud.firestore {
         }
     };
 
+    const handleGoogle = () => {
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                const token = credential.accessToken;
+                // The signed-in user info.
+                const user = result.user;
+                // IdP data available using getAdditionalUserInfo(result)
+                // ...
+            }).catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used.
+                const email = error.customData.email;
+                // The AuthCredential type that was used.
+                const credential = GoogleAuthProvider.credentialFromError(error);
+
+                console.log(errorCode, errorMessage)
+                // ...
+            });
+    }
+
     return (
         <div>
             <div className="hero bg-base-200">
@@ -84,6 +108,7 @@ service cloud.firestore {
 
                                 <button type="submit" className="btn btn-neutral mt-4">Register</button>
                             </form>
+                            <button onClick={handleGoogle} type="button" className="btn btn-neutral mt-4">With Google</button>
                         </div>
                     </div>
                 </div>
